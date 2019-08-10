@@ -182,6 +182,7 @@ class StudentForm extends React.Component {
                 label="Retype Password"
                 component={renderField}
                 type="password"
+                validate={[required]}
                 placeholder="Retype  Password"
               />
               <Field
