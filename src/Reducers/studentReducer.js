@@ -5,7 +5,7 @@ const initialState = {
       country: "US",
       email_id: "tejal@gmail.com",
       gender: "male",
-      hobby: "Dancing",
+      hobby:["Reading","Drawing"],
       name: "wsdsd",
       password: "Tejal@2812",
       retypepassword: "Tejal@2812"
@@ -15,7 +15,7 @@ const initialState = {
       country: "US",
       email_id: "tejal1@gmail.com",
       gender: "male",
-      hobby: "Dancing",
+      hobby:["Swimming"],
       name: "wsdsd",
       password: "Tejal@2812",
       retypepassword: "Tejal@2812"
@@ -25,13 +25,13 @@ const initialState = {
       country: "US",
       email_id: "tejal2@gmail.com",
       gender: "male",
-      hobby: "Dancing",
+      hobby:["Travelling"],
       name: "wsdsd",
       password: "Tejal@2812",
       retypepassword: "Tejal@2812"
     }
   ],
-  idCounter: 1
+  idCounter: 3
 };
 export default (state = initialState, action) => {
   switch (action.type) {

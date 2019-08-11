@@ -1,35 +1,29 @@
-import React from 'react';
-import "./App.scss";
-import { connect } from 'react-redux';
-import {bindActionCreators} from 'redux';
-import * as  studentActions  from './Actions/StudentActions'
-import StudentList from './StudentList'
+import React from "react";
+
+import StudentList from "./StudentList";
+import { ToastContainer } from "react-toastify";
+import { Provider } from 'react-redux'
+import configureStore from './store';
+import AddStudent from './addStudent';
+
+import { Route, BrowserRouter as Router } from 'react-router-dom'
 
 class App extends React.Component {
-  constructor(props){
-    super();
-    this.state={
-      studentsList :[]
-    }
-  }
-  render(){
+  render() {
     return (
       <div className="App">
-        <StudentList 
-          studentData = {this.props.studentList}
-          history = {this.props.history}
-        />
+        <Provider store={configureStore()}>
+          <Router>
+              <Route exact path="/" component={StudentList} />
+              <Route path="/add-student" component={AddStudent} />
+              <Route path="/edit-student/:id" component={AddStudent} />
+          </Router>
+        </Provider>
+        <ToastContainer />
       </div>
-    ) 
+    );
   }
 }
 
-const mapStateToProps = state => ({
-  studentList:state.studentReducer.studentList
-})
 
-const mapDispatchToProps = dispatch =>({
-    studentActions : bindActionCreators(studentActions,dispatch)
-})
-
-export default connect(mapStateToProps,mapDispatchToProps)(App);
+export default App;

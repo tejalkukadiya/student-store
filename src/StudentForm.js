@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Col, Button, Form, Container } from "reactstrap";
+import { Col, Button, Form, Row } from "reactstrap";
 import { Field, reduxForm } from "redux-form";
 const required = value => (value ? undefined : "Required");
 const email = value =>
@@ -8,14 +8,23 @@ const email = value =>
     ? "Invalid email address"
     : undefined;
 
-const validatepassword = values => {
-  console.log("herere", values);
+const validate = values => {
   const errors = {};
+  if (!values.hobby) {
+    errors.hobby = "Required";
+  } else if (values.hobby.length < 2) {
+    errors.hobby = "select atleast 2 hobby.";
+  }
+
+  if (!values.gender) {
+    errors.gender = "Required";
+  }
+
   if (!values.password) {
     errors.password = "Required";
   } else if (values.password.length < 6) {
     errors.password = "Must be 6 characters or long.";
-  } else if (!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/i.test(values.newpassword)) {
+  } else if (!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/i.test(values.password)) {
     errors.password =
       "Password must contain one uppercase letter,one special character,one number and one letter";
   }
@@ -34,7 +43,7 @@ const validatepassword = values => {
   if (!values.retypepassword) {
     errors.retypepassword = "Required";
   } else if (values.retypepassword != values.password) {
-    errors.confirmpassword = "Both Password do not match.";
+    errors.retypepassword = "Both Password do not match.";
   }
 
   return errors;
@@ -44,34 +53,83 @@ const renderField = ({
   input,
   label,
   multiple,
-  type,
-  data,
+  name,
+  inputType,
   placeholder,
-  value,
   cssClass,
-  rows,
   disabled,
+  options,
   meta: { touched, error, warning },
   children
 }) => {
   let fieldt = null;
-  switch (type) {
+  switch (inputType) {
     case "text":
-    case "checkbox":
-    case "radio":
+    case "email":
     case "file":
     case "password":
       fieldt = (
         <input
           id={input.name}
           {...input}
+          type={inputType}
           className={cssClass}
-          type={type}
           placeholder={placeholder}
           disabled={disabled}
-          checked={input.checked}
         />
       );
+      break;
+    case "radio":
+      console.log("-----", input);
+
+      fieldt = options.map((option, index) => (
+        <div className="form-group form-check" key={`radio${index}`}>
+          <label key={option.value} className="form-check-label">
+            <input
+              className="form-check-input"
+              type="radio"
+              {...input}
+              value={option.value}
+              checked={option.value === input.value}
+              // {...input}
+              // name={input.name}
+              // id={option.name}
+              // type="radio"
+              // disabled={disabled}
+              // value={option.value} checked={input.value === option.value}
+            />
+
+            {option.name}
+          </label>
+        </div>
+      ));
+      break;
+    case "checkbox":
+      fieldt = options.map((option, index) => [
+        <div className="form-group form-check">
+          <input
+            type="checkbox"
+            id={`${input.name}[${index}]`}
+            className="form-check-input"
+            name={`${input.name}[${index}]`}
+            value={option.name}
+            checked={input.value.indexOf(option.name) !== -1}
+            onChange={event => {
+              const newValue = [...input.value];
+              if (event.target.checked) {
+                newValue.push(option.name);
+              } else {
+                newValue.splice(newValue.indexOf(option.name), 1);
+              }
+
+              return input.onChange(newValue);
+            }}
+          />
+          <label for={`${input.name}[${index}]`} className="form-check-label">
+            {option.name}
+          </label>
+        </div>
+      ]);
       break;
 
     case "select":
@@ -94,16 +152,16 @@ const renderField = ({
         <input
           id={input.name}
           {...input}
-          type={type}
+          type={inputType}
           placeholder={placeholder}
         />
       );
   }
-  let formRowClass = `${type !== "select" ? "form-row" : ""} ${
+  let formRowClass = `${inputType !== "select" ? "form-group" : ""} ${
     disabled ? "disabled" : ""
-  } ${type}`;
+  } ${inputType}`;
   let formRowId = input.name;
-  let inverse = type == "checkbox" || type == "radio" ? true : false;
+  let inverse = inputType == "checkbox" || inputType == "radio" ? true : false;
   if (!inverse) {
     return (
       <div className={formRowClass}>
@@ -117,17 +175,14 @@ const renderField = ({
       </div>
     );
   } else {
-    return (
-      <div className={formRowClass}>
-        {fieldt}
-        <label for={formRowId}>{label}</label>
-        <div className="form-valid-message">
-          {touched &&
-            ((error && <span className="error">* {error}</span>) ||
-              (warning && <span className="warning">* {warning}</span>))}
-        </div>
+    return [
+      fieldt,
+      <div className="form-valid-message">
+        {touched &&
+          ((error && <span className="error">* {error}</span>) ||
+            (warning && <span className="warning">* {warning}</span>))}
       </div>
-    );
+    ];
   }
 };
 
@@ -139,13 +194,14 @@ class StudentForm extends React.Component {
     let currStudent = this.props.currStudent;
     let studentId = this.props.studentId;
     if (currStudent !== null) {
+      console.log(currStudent);
       const initData = {
         name: currStudent.name,
         password: currStudent.password,
         retypepassword: currStudent.password,
         gender: currStudent.gender,
-        country: currStudent.country,
         hobby: currStudent.hobby,
+        country: currStudent.country,
         email_id: currStudent.email_id
       };
       this.props.initialize(initData);
@@ -155,7 +211,7 @@ class StudentForm extends React.Component {
     const { handleSubmit, pristine, submitting } = this.props;
     return (
       <div>
-        <Container>
+        <Row>
           <Col sm="12" md={{ size: 6, offset: 3 }}>
             <div className="add-student-header">
               {this.props.currStudent !== null ? "Edit" : "Add"} student
@@ -165,76 +221,66 @@ class StudentForm extends React.Component {
                 name="name"
                 label="Name"
                 component={renderField}
-                type="text"
+                cssClass="form-control"
+                inputType="text"
                 placeholder="Enter Name"
                 validate={[required]}
               />
               <Field
                 name="password"
                 label="Password"
+                cssClass="form-control"
                 component={renderField}
-                type="password"
+                inputType="password"
                 placeholder="Enter  Password"
                 validate={[required]}
               />
               <Field
                 name="retypepassword"
                 label="Retype Password"
+                cssClass="form-control"
                 component={renderField}
-                type="password"
+                inputType="password"
                 validate={[required]}
                 placeholder="Retype  Password"
               />
               <Field
                 name="email_id"
                 label="Email"
+                cssClass="form-control"
                 component={renderField}
-                type="email"
+                inputType="email"
                 placeholder="Enter Email"
                 validate={[required, email]}
               />
 
-              <div className="radioGender clearfix">
-                <span className="radiobtnGender-label">Gender</span>
-                <label className="customradio">
-                  Female
-                  <Field
-                    component="input"
-                    type="radio"
-                    name="gender"
-                    id="female"
-                    value="female"
-                  />
-                  <span className="checkmark" />
-                </label>
-                <label className="customradio">
-                  Male
-                  <Field
-                    component="input"
-                    type="radio"
-                    name="gender"
-                    id="male"
-                    value="male"
-                  />
-                  <span className="checkmark" />
-                </label>
+              <div className="">
+                <span className="font-bold">Gender</span>
+                <Field
+                  component={renderField}
+                  label="Gender"
+                  inputType="radio"
+                  name="gender"
+                  options={[
+                    { name: "Female", value: "female" },
+                    { name: "Male", value: "male" }
+                  ]}
+                />
               </div>
-              <div className="select-list-wrapper">
-                <label for="hobby"> Hobby</label>
-                <div className="select-wrapper">
-                  <Field
-                    placeholder="Select Hobby"
-                    component={renderField}
-                    type="select"
-                    name="hobby"
-                    validate={[required]}
-                  >
-                    <option value="">Select Hobby</option>
-                    <option value="Dancing">Dancing</option>
-                    <option value="Writting">Writting</option>
-                    <option value="Cooking">Cooking</option>
-                  </Field>
-                </div>
+              <div className="">
+                <span className="font-bold">Hobby</span>
+                <Field
+                  component={renderField}
+                  label="Hobby"
+                  inputType="checkbox"
+                  name="hobby"
+                  options={[
+                    { name: "Reading", value: "reading" },
+                    { name: "Drawing", value: "drawing" },
+                    { name: "Swimming", value: "swimming" },
+                    { name: "Travelling", value: "travelling" }
+                  ]}
+                />
               </div>
               <div className="select-list-wrapper">
                 <label for="country">Country </label>
@@ -242,7 +288,7 @@ class StudentForm extends React.Component {
                   <Field
                     placeholder="Select Country"
                     component={renderField}
-                    type="select"
+                    inputType="select"
                     name="country"
                     validate={[required]}
                   >
@@ -254,18 +300,18 @@ class StudentForm extends React.Component {
                 </div>
               </div>
               <div>
-                <Button type="submit" disabled={pristine || submitting}>
+                <Button color="primary" className="float-right" type="submit" disabled={pristine || submitting}>
                   Submit
                 </Button>
               </div>
             </Form>
           </Col>
-        </Container>
+        </Row>
       </div>
     );
   }
 }
 export default reduxForm({
-  form: "StudentForm", // a unique identifier for this form
-  validatepassword // <--- validation function given to redux-form
+  form: "studentForm", // a unique identifier for this form
+  validate // <--- validation function given to redux-form
 })(StudentForm);
