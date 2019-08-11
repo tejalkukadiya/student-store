@@ -1,5 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
 import { Col, Button, Form, Row } from "reactstrap";
 import { Field, reduxForm } from "redux-form";
 const required = value => (value ? undefined : "Required");
@@ -42,7 +41,7 @@ const validate = values => {
 
   if (!values.retypepassword) {
     errors.retypepassword = "Required";
-  } else if (values.retypepassword != values.password) {
+  } else if (values.retypepassword !== values.password) {
     errors.retypepassword = "Both Password do not match.";
   }
 
@@ -80,7 +79,6 @@ const renderField = ({
       );
       break;
     case "radio":
-      console.log("-----", input);
 
       fieldt = options.map((option, index) => (
         <div className="form-group form-check" key={`radio${index}`}>
@@ -91,12 +89,6 @@ const renderField = ({
               {...input}
               value={option.value}
               checked={option.value === input.value}
-              // {...input}
-              // name={input.name}
-              // id={option.name}
-              // type="radio"
-              // disabled={disabled}
-              // value={option.value} checked={input.value === option.value}
             />
 
             {option.name}
@@ -106,7 +98,7 @@ const renderField = ({
       break;
     case "checkbox":
       fieldt = options.map((option, index) => [
-        <div className="form-group form-check">
+        <div className="form-group form-check" key={option.name}>
           <input
             type="checkbox"
             id={`${input.name}[${index}]`}
@@ -125,7 +117,7 @@ const renderField = ({
               return input.onChange(newValue);
             }}
           />
-          <label for={`${input.name}[${index}]`} className="form-check-label">
+          <label htmlFor={`${input.name}[${index}]`} className="form-check-label">
             {option.name}
           </label>
         </div>
@@ -161,11 +153,11 @@ const renderField = ({
     disabled ? "disabled" : ""
   } ${inputType}`;
   let formRowId = input.name;
-  let inverse = inputType == "checkbox" || inputType == "radio" ? true : false;
+  let inverse = inputType === "checkbox" || inputType === "radio" ? true : false;
   if (!inverse) {
     return (
       <div className={formRowClass}>
-        {label != null ? <label for={formRowId}>{label}</label> : null}
+        {label != null ? <label htmlFor={formRowId}>{label}</label> : null}
         {fieldt}
         <div className="form-valid-message">
           {touched &&
@@ -192,9 +184,7 @@ class StudentForm extends React.Component {
   }
   handleInitalize() {
     let currStudent = this.props.currStudent;
-    let studentId = this.props.studentId;
     if (currStudent !== null) {
-      console.log(currStudent);
       const initData = {
         name: currStudent.name,
         password: currStudent.password,
@@ -249,7 +239,7 @@ class StudentForm extends React.Component {
                 label="Email"
                 cssClass="form-control"
                 component={renderField}
-                inputType="email"
+                inputType="text"
                 placeholder="Enter Email"
                 validate={[required, email]}
               />
@@ -283,7 +273,7 @@ class StudentForm extends React.Component {
                 />
               </div>
               <div className="select-list-wrapper">
-                <label for="country">Country </label>
+                <label htmlFor="country">Country </label>
                 <div className="select-wrapper">
                   <Field
                     placeholder="Select Country"

@@ -5,7 +5,7 @@ const initialState = {
       country: "US",
       email_id: "tejal@gmail.com",
       gender: "male",
-      hobby:["Reading","Drawing"],
+      hobby: ["Reading", "Drawing"],
       name: "wsdsd",
       password: "Tejal@2812",
       retypepassword: "Tejal@2812"
@@ -15,7 +15,7 @@ const initialState = {
       country: "US",
       email_id: "tejal1@gmail.com",
       gender: "male",
-      hobby:["Swimming"],
+      hobby: ["Swimming", "Travelling"],
       name: "wsdsd",
       password: "Tejal@2812",
       retypepassword: "Tejal@2812"
@@ -25,7 +25,7 @@ const initialState = {
       country: "US",
       email_id: "tejal2@gmail.com",
       gender: "male",
-      hobby:["Travelling"],
+      hobby: ["Travelling", "Drawing"],
       name: "wsdsd",
       password: "Tejal@2812",
       retypepassword: "Tejal@2812"
@@ -58,13 +58,13 @@ export default (state = initialState, action) => {
       };
 
     case "DELETE_STUDENT":
-      var valueList = state.studentList;
-      action.payload.map(item =>{
-        valueList= valueList.filter(student => student.id!= item)
-      })
       return {
         ...state,
-        studentList: valueList
+        studentList: [
+          ...state.studentList.filter(
+            student => !action.payload.includes(student.id)
+          )
+        ]
       };
     default:
       return state;

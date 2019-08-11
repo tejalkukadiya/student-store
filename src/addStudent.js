@@ -8,10 +8,10 @@ class AddStudent extends React.Component {
   submitForm(values) {
     const { studentList } = this.props;
     var found = studentList.find(item => {
-      return item.email_id == values.email_id;
+      return item.email_id === values.email_id;
     });
     if (
-      found == undefined ||
+      found === undefined ||
       this.props.location.pathname.includes("edit-student")
     ) {
       const { params } = this.props.match;

@@ -27,7 +27,7 @@ class StudentList extends React.Component {
     });
   };
   handleCheckbox = (studentId, e) => {
-    if (e.target.checked == true) {
+    if (e.target.checked === true) {
       this.setState({
         studentIdList: [...this.state.studentIdList, studentId]
       });
@@ -76,7 +76,6 @@ class StudentList extends React.Component {
 
             <tbody>
               {this.props.studentList.map((student, index) => {
-                console.log(student)
                 return (
                   <tr key={`index_${index}_${student.id}`}>
                     <td>
@@ -85,7 +84,7 @@ class StudentList extends React.Component {
                           type="checkbox"
                           onChange={this.handleCheckbox.bind(this, student.id)}
                         />
-                        <label for={student.id} />
+                        <label htmlFor={student.id} />
                       </div>
                     </td>
                     <th scope="row">{index + 1}</th>
